@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:onlinemenu/view_model/test_controller.dart';
+
+import 'sign_view_model.dart';
 
 class TestPage extends StatelessWidget {
   final controller = TestController();
@@ -13,13 +14,13 @@ class TestPage extends StatelessWidget {
           children: [
             ElevatedButton(
               onPressed: () async {
-                controller.getData();
+                controller.modelvariable();
               },
               child: Text('GET Data', style: TextStyle(fontSize: 24)),
             ),
             ElevatedButton(
               onPressed: () async {
-                controller.postData();
+                // controller.postData();
               },
               child: Text('POST Data', style: TextStyle(fontSize: 24)),
             ),

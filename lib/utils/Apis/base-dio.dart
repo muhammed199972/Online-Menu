@@ -2,10 +2,11 @@ import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
 
-import 'package:http/http.dart' as http;
-import 'app_exceptions.dart';
+import 'package:dio/dio.dart';
 
-class BaseClient {
+import '../../helper/app_exceptions.dart';
+
+class DioClient {
   static const int TIME_OUT_DURATION = 20;
   //GET
   Future<dynamic> get(String baseUrl, String api, String token) async {
@@ -13,11 +14,15 @@ class BaseClient {
     try {
       var response;
       token == ''
-          ? response =
-              await http.get(uri).timeout(Duration(seconds: TIME_OUT_DURATION))
-          : response = await http.get(uri, headers: {
-              'Authorization': 'Bearer $token'
-            }).timeout(Duration(seconds: TIME_OUT_DURATION));
+          ? response = await Dio()
+              .get(baseUrl + api)
+              .timeout(Duration(seconds: TIME_OUT_DURATION))
+          : response = await Dio()
+              .get(baseUrl + api,
+                  options: Options(
+                    headers: {'Authorization': 'Bearer $token'},
+                  ))
+              .timeout(Duration(seconds: TIME_OUT_DURATION));
       return _processResponse(response);
     } on SocketException {
       throw FetchDataException('No Internet connection', uri.toString());
@@ -35,12 +40,16 @@ class BaseClient {
     try {
       var response;
       token == ''
-          ? response = await http
-              .post(uri, body: payload)
+          ? response = await Dio()
+              .post(baseUrl + api, data: payload)
               .timeout(Duration(seconds: TIME_OUT_DURATION))
-          : response = await http.post(uri, body: payload, headers: {
-              'Authorization': 'Bearer $token'
-            }).timeout(Duration(seconds: TIME_OUT_DURATION));
+          : response = await Dio()
+              .post(baseUrl + api,
+                  data: payload,
+                  options: Options(
+                    headers: {'Authorization': 'Bearer $token'},
+                  ))
+              .timeout(Duration(seconds: TIME_OUT_DURATION));
 
       return _processResponse(response);
     } on SocketException {
@@ -54,16 +63,19 @@ class BaseClient {
   //DELETE
   Future<dynamic> delete(String baseUrl, String api, String token) async {
     var uri = Uri.parse(baseUrl + api);
-
     try {
       var response;
       token == ''
-          ? response = await http
-              .delete(uri)
+          ? response = await Dio()
+              .delete(baseUrl + api)
               .timeout(Duration(seconds: TIME_OUT_DURATION))
-          : response = await http.delete(uri, headers: {
-              'Authorization': 'Bearer $token'
-            }).timeout(Duration(seconds: TIME_OUT_DURATION));
+          : response = await Dio()
+              .delete(baseUrl + api,
+                  options: Options(
+                    headers: {'Authorization': 'Bearer $token'},
+                  ))
+              .timeout(Duration(seconds: TIME_OUT_DURATION));
+
       return _processResponse(response);
     } on SocketException {
       throw FetchDataException('No Internet connection', uri.toString());
@@ -73,7 +85,7 @@ class BaseClient {
     }
   }
 
-  //Put
+  //put
   Future<dynamic> put(
       String baseUrl, String api, dynamic payloadObj, String token) async {
     var uri = Uri.parse(baseUrl + api);
@@ -81,12 +93,17 @@ class BaseClient {
     try {
       var response;
       token == ''
-          ? response = await http
-              .put(uri, body: payload)
+          ? response = await Dio()
+              .put(baseUrl + api, data: payload)
               .timeout(Duration(seconds: TIME_OUT_DURATION))
-          : response = await http.put(uri, body: payload, headers: {
-              'Authorization': 'Bearer $token'
-            }).timeout(Duration(seconds: TIME_OUT_DURATION));
+          : response = await Dio()
+              .put(baseUrl + api,
+                  data: payload,
+                  options: Options(
+                    headers: {'Authorization': 'Bearer $token'},
+                  ))
+              .timeout(Duration(seconds: TIME_OUT_DURATION));
+
       return _processResponse(response);
     } on SocketException {
       throw FetchDataException('No Internet connection', uri.toString());
@@ -96,25 +113,17 @@ class BaseClient {
     }
   }
 
-  dynamic _processResponse(http.Response response) {
+  dynamic _processResponse(response) {
     switch (response.statusCode) {
       case 200:
-        var responseJson = utf8.decode(response.bodyBytes);
-        return responseJson;
-        break;
       case 201:
-        var responseJson = utf8.decode(response.bodyBytes);
-        return responseJson;
-        break;
+        return response.data;
       case 400:
         throw BadRequestException(
             utf8.decode(response.bodyBytes), response.request!.url.toString());
       case 401:
       case 403:
         throw UnAuthorizedException(
-            utf8.decode(response.bodyBytes), response.request!.url.toString());
-      case 422:
-        throw BadRequestException(
             utf8.decode(response.bodyBytes), response.request!.url.toString());
       case 500:
       default:

@@ -3,7 +3,8 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:onlinemenu/Binds.dart';
-import 'package:onlinemenu/view/test_page.dart';
+
+import 'Pages/Home/home_view.dart';
 
 void main() async {
   runApp(MyApp());
