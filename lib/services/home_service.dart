@@ -1,28 +1,24 @@
 import 'dart:convert';
 
-import 'package:get/get.dart';
 import 'package:onlinemenu/helper/base_controller.dart';
 import 'package:onlinemenu/helper/dialog_helper.dart';
-import 'package:onlinemenu/services/app_exceptions.dart';
-import 'package:onlinemenu/services/base_client.dart';
-import 'package:onlinemenu/services/dio_client.dart';
+import 'package:onlinemenu/helper/app_exceptions.dart';
+import 'package:onlinemenu/utils/Apis/base-http.dart';
 
-class TestController extends GetxController with BaseController {
-  void getData() async {
-    showLoading('Get data');
+class HomeService extends BaseController {
+  final baseurl = 'https://jsonplaceholder.typicode.com';
+  final categoryurl = '/todos/1';
+  getData() async {
     var response = await BaseClient()
-        .get('https://jsonplaceholder.typicode.com', '/todos/1', '')
+        .get(baseurl, categoryurl, '')
         .catchError(handleError);
     if (response == null) return;
-    hideLoading();
-    print(response);
   }
 
-  void postData() async {
+  postData() async {
     var request = {'message': 'CodeX sucks!!!'};
-    showLoading('Post data...');
     var response = await BaseClient()
-        .post('https://jsonplaceholder.typicode.com', '/posts', request, '')
+        .post(baseurl, categoryurl, request, '')
         .catchError((error) {
       if (error is BadRequestException) {
         var apiError = json.decode(error.message!);
@@ -32,7 +28,5 @@ class TestController extends GetxController with BaseController {
       }
     });
     if (response == null) return;
-    hideLoading();
-    print(response);
   }
 }
