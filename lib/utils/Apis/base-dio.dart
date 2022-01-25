@@ -4,7 +4,7 @@ import 'dart:io';
 
 import 'package:dio/dio.dart';
 
-import '../../helper/app_exceptions.dart';
+import '../Error/app_exceptions.dart';
 
 class DioClient {
   static const int TIME_OUT_DURATION = 20;
